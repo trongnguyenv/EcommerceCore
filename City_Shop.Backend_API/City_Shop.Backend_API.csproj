@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="5.5.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\City_Shop.Application\City_Shop.Application.csproj" />
+    <ProjectReference Include="..\City_Shop.Data\City_Shop.Data.csproj" />
+    <ProjectReference Include="..\City_Shop.Uitilities\City_Shop.Uitilities.csproj" />
+    <ProjectReference Include="..\City_Shop.ViewModel\City_Shop.ViewModel.csproj" />
+  </ItemGroup>
+
+</Project>
