@@ -1,17 +1,18 @@
-﻿using City_Shop.Data.EF;
+﻿using City_Shop.Application.Common;
+using City_Shop.Data.EF;
 using City_Shop.Data.Entities;
+using City_Shop.Uitilities.Exceptions;
+using City_Shop.ViewModel.Catalog.ProductImages;
 using City_Shop.ViewModel.Catalog.Products;
 using City_Shop.ViewModel.Common;
-using System;
-using System.Linq;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http;
-using System.Net.Http.Headers;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
 using System.IO;
-using City_Shop.Application.Common;
-using City_Shop.Uitilities.Exceptions;
+using System.Linq;
+using System.Net.Http.Headers;
+using System.Threading.Tasks;
 
 namespace City_Shop.Application.Catalog.Products
 {
@@ -24,6 +25,30 @@ namespace City_Shop.Application.Catalog.Products
         {
             _context = context;
             _storageService = storageService;
+        }
+
+        public async Task<ProductViewModel> GetById(int productId, string languageId)
+        {
+            var product = await _context.Products.FindAsync(productId);
+            var productTranSlation = await _context.ProductTranslations.FirstOrDefaultAsync(x => x.ProductId == productId &&
+                x.LanguageId == languageId);
+
+            var productViewModel = new ProductViewModel()
+            {
+                Id = product.Id,
+                DateCreated = product.DateCreated,
+                Description = productTranSlation != null ? productTranSlation.Description : null,
+                Name = productTranSlation != null ? productTranSlation.Name : null,
+                OriginalPrice = product.OriginalPrice,
+                Price = product.Price,
+                SeoAlias = productTranSlation.SeoAlias,
+                SeoTitle = productTranSlation.SeoTitle,
+                SeoDescription = productTranSlation.SeoDescription,
+                Stock = product.Stock,
+                ViewCount = product.ViewCount,
+            };
+
+            return productViewModel;
         }
 
         public async Task AddViewCount(int productId)
@@ -58,7 +83,8 @@ namespace City_Shop.Application.Catalog.Products
             };
 
             // SAVE IMAGE
-            if (request.ThumbnailImage != null) {
+            if (request.ThumbnailImage != null)
+            {
                 product.ProductImages = new List<ProductImage>()
                 {
                     new ProductImage(){
@@ -72,7 +98,8 @@ namespace City_Shop.Application.Catalog.Products
                 };
             }
             _context.Products.Add(product);
-            return await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync();
+            return product.Id;
         }
 
         public async Task<int> Delete(int productId)
@@ -146,7 +173,6 @@ namespace City_Shop.Application.Catalog.Products
             return pagedResult;
         }
 
-
         public async Task<int> Update(ProductUpdateRequest request)
         {
             var product = await _context.Products.FindAsync(request.Id);
@@ -193,24 +219,89 @@ namespace City_Shop.Application.Catalog.Products
             return await _context.SaveChangesAsync() > 0;
         }
 
-        public Task<int> AddImages(int productId, List<FormFile> files)
+        public async Task<int> AddImage(int productId, ProductImageCreateRequest request)
         {
-            throw new NotImplementedException();
+            var productImage = new ProductImage()
+            {
+                Caption = request.Caption,
+                IsDefault = request.IsDefault,
+                DateCreated = DateTime.Now,
+                ProductId = productId,
+                SortOrder = request.SortOrder,
+            };
+            // SAVE IMAGE
+            if (request.ImageFile != null)
+            {
+                productImage.ImagePath = await this.SaveFile(request.ImageFile);
+                productImage.FileSize = request.ImageFile.Length;
+            }
+
+            _context.ProductImages.Add(productImage);
+            await _context.SaveChangesAsync();
+            return productImage.Id;
         }
 
-        public Task<int> RemoveImages(int imageId)
+        public async Task<int> RemoveImage(int imageId)
         {
-            throw new NotImplementedException();
+            var productImage = await _context.ProductImages.FindAsync(imageId);
+            if (productImage == null)
+                throw new CityShopException($"Cannot find an image with id {imageId}");
+
+            _context.ProductImages.Remove(productImage);
+            return await _context.SaveChangesAsync();
         }
 
-        public Task<int> UpdateImage(int imageId, string caption, bool isDefault)
+        public async Task<int> UpdateImage(int imageId, ProductImageUpdateRequest request)
         {
-            throw new NotImplementedException();
+            var productImage = await _context.ProductImages.FindAsync(imageId);
+            if (productImage == null)
+                throw new CityShopException($"Cannot find an image with id {imageId}");
+
+            if (request.ImageFile != null)
+            {
+                productImage.ImagePath = await this.SaveFile(request.ImageFile);
+                productImage.FileSize = request.ImageFile.Length;
+            }
+
+            _context.ProductImages.Update(productImage);
+            return await _context.SaveChangesAsync();
         }
 
-        public Task<List<ProductImageViewModel>> GetListImage(int productId)
+        public async Task<List<ProductImageViewModel>> GetListImages(int productId)
         {
-            throw new NotImplementedException();
+            return await _context.ProductImages.Where(x => x.ProductId == productId)
+                .Select(i => new ProductImageViewModel()
+                {
+                    Caption = i.Caption,
+                    DateCreated = i.DateCreated,
+                    FileSize = i.FileSize,
+                    Id = i.Id,
+                    ImagePath = i.ImagePath,
+                    IsDefault = i.IsDefault,
+                    ProductId = i.ProductId,
+                    SortOrder = i.SortOrder,
+                }).ToListAsync();
+        }
+
+        public async Task<ProductImageViewModel> GetImageById(int imageId)
+        {
+            var image = await _context.ProductImages.FindAsync(imageId);
+            if (image == null)
+                throw new CityShopException($"Cannot find an image with id {imageId}");
+
+            var viewModel = new ProductImageViewModel()
+            {
+                Caption = image.Caption,
+                DateCreated = image.DateCreated,
+                FileSize = image.FileSize,
+                Id = image.Id,
+                ImagePath = image.ImagePath,
+                IsDefault = image.IsDefault,
+                ProductId = image.ProductId,
+                SortOrder = image.SortOrder,
+            };
+
+            return viewModel;
         }
     }
 }

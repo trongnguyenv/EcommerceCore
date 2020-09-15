@@ -1,4 +1,5 @@
 using City_Shop.Application.Catalog.Products;
+using City_Shop.Application.Common;
 using City_Shop.Data.EF;
 using City_Shop.Uitilities.Constants;
 using Microsoft.AspNetCore.Builder;
@@ -28,7 +29,10 @@ namespace City_Shop.Backend_API
             );
 
             // Declare DI
+            services.AddTransient<IStorageService, FileStorageService>();
+
             services.AddTransient<IPublicProductService, PublicProductService>();
+            services.AddTransient<IManageProductService, ManageProductService>();
 
             services.AddControllersWithViews();
 
