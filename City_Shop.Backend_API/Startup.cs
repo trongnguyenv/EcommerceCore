@@ -1,9 +1,12 @@
 using City_Shop.Application.Catalog.Products;
 using City_Shop.Application.Common;
+using City_Shop.Application.System;
 using City_Shop.Data.EF;
+using City_Shop.Data.Entities;
 using City_Shop.Uitilities.Constants;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -28,8 +31,17 @@ namespace City_Shop.Backend_API
                 options.UseSqlServer(Configuration.GetConnectionString(SystemConstants.MAIN_CONNECTION_STRING))
             );
 
+            services.AddIdentity<AppUser, AppRole>()
+                .AddEntityFrameworkStores<CityShopDbContext>()
+                .AddDefaultTokenProviders();
+
             // Declare DI
             services.AddTransient<IStorageService, FileStorageService>();
+
+            services.AddTransient<UserManager<AppUser>, UserManager<AppUser>>();
+            services.AddTransient<SignInManager<AppUser>, SignInManager<AppUser>>();
+            services.AddTransient<RoleManager<AppRole>, RoleManager<AppRole>>();
+            services.AddTransient<IUserService, UserService>();
 
             services.AddTransient<IPublicProductService, PublicProductService>();
             services.AddTransient<IManageProductService, ManageProductService>();
