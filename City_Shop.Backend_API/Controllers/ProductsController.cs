@@ -1,6 +1,7 @@
 ﻿using City_Shop.Application.Catalog.Products;
 using City_Shop.ViewModel.Catalog.ProductImages;
 using City_Shop.ViewModel.Catalog.Products;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
@@ -8,6 +9,7 @@ namespace City_Shop.Backend_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class ProductsController : ControllerBase
     {
         private readonly IPublicProductService _publicProductService;
