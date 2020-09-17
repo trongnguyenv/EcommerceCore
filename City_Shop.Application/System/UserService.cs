@@ -1,5 +1,5 @@
 ﻿using City_Shop.Data.Entities;
-using City_Shop.ViewModel.System;
+using City_Shop.ViewModel.System.Users;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -28,7 +28,7 @@ namespace City_Shop.Application.System
 
         public async Task<string> Authenticate(LoginRequest request)
         {
-            //Check Username
+            // Check Username
             var user = await _userManager.FindByNameAsync(request.Username);
             if (user == null) return null;
             // Check Password

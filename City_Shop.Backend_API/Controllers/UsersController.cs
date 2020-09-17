@@ -1,5 +1,5 @@
 ﻿using City_Shop.Application.System;
-using City_Shop.ViewModel.System;
+using City_Shop.ViewModel.System.Users;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
