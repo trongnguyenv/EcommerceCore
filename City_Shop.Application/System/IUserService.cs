@@ -1,4 +1,6 @@
-﻿using City_Shop.ViewModel.System.Users;
+﻿using City_Shop.ViewModel.Common;
+using City_Shop.ViewModel.System.Users;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -10,5 +12,6 @@ namespace City_Shop.Application.System
     {
         Task<string> Authenticate(LoginRequest request);
         Task<bool> Register(RegisterRequest request);
+        Task<PagedResult<UserViewModel>> GetUserPaging(GetUserPagingRequest request);
     }
 }

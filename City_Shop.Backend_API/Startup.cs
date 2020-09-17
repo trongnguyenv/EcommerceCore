@@ -49,8 +49,7 @@ namespace City_Shop.Backend_API
             services.AddTransient<RoleManager<AppRole>, RoleManager<AppRole>>();
             services.AddTransient<IUserService, UserService>();
 
-            services.AddTransient<IPublicProductService, PublicProductService>();
-            services.AddTransient<IManageProductService, ManageProductService>();
+            services.AddTransient<IProductService, ProductService>();
 
             // FluentValidation.AspNetCore
             // RegisterValidationsFromAssemblyContaining

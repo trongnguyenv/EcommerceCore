@@ -1,10 +1,13 @@
 ﻿using City_Shop.Data.Entities;
+using City_Shop.ViewModel.Common;
 using City_Shop.ViewModel.System.Users;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
@@ -57,6 +60,42 @@ namespace City_Shop.Application.System
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
+        public async Task<PagedResult<UserViewModel>> GetUserPaging(GetUserPagingRequest request)
+        {
+            var query = _userManager.Users;
+            if (!string.IsNullOrEmpty(request.Keyword))
+            {
+                query = query.Where(x =>
+                x.UserName.Contains(request.Keyword) ||
+                x.Email.Contains(request.Keyword) || 
+                x.PhoneNumber.Contains(request.Keyword)
+                );
+            }
+
+            // PAGING
+            int totalRow = await query.CountAsync();
+            var data = await query.Skip((request.PageIndex - 1) * request.PageSize)
+                .Take(request.PageSize)
+                .Select(x => new UserViewModel()
+                {
+                    Email = x.Email,
+                    FirstName = x.FirstName,
+                    LastName = x.LastName,
+                    Phone = x.PhoneNumber,
+                    Dob = x.Dob,
+                    Username = x.UserName,
+                }).ToListAsync();
+
+            // SELECT AND PROJECTION
+            var pagedResult = new PagedResult<UserViewModel>()
+            {
+                TotalRecord = totalRow,
+                Items = data,
+            };
+
+            return pagedResult;
+        }
+
         public async Task<bool> Register(RegisterRequest request)
         {
             var user = new AppUser()
@@ -70,7 +109,8 @@ namespace City_Shop.Application.System
             };
 
             var result = await _userManager.CreateAsync(user, request.Password);
-            if (result.Succeeded) { 
+            if (result.Succeeded)
+            {
                 return true;
             }
             return false;
