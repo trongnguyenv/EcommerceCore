@@ -30,7 +30,7 @@ namespace City_Shop.Backend_API.Controllers
                 return BadRequest("Username or password incorrect !");
             }
 
-            return Ok(new { token = resultToken });
+            return Ok(resultToken);
         }
 
         [HttpPost("register")]

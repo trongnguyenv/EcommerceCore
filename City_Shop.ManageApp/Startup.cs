@@ -1,6 +1,7 @@
 using City_Shop.ManageApp.Services;
 using City_Shop.ViewModel.System.Users;
 using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -24,17 +25,25 @@ namespace City_Shop.ManageApp
         {
             services.AddHttpClient();
 
+            // Registers authentication services
+            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddCookie(options =>
+                {
+                    options.LoginPath = "/User/Login";
+                    options.AccessDeniedPath = "/User/Forbidden";
+                });
+
             services.AddControllersWithViews();
 
             IMvcBuilder builder = services.AddRazorPages();
             var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-            
-            #if DEBUG
+
+#if DEBUG
             if (environment == Environments.Development)
             {
                 builder.AddRazorRuntimeCompilation();
             }
-            #endif
+#endif
 
             // RegisterValidationsFromAssemblyContaining
             services.AddControllers().AddFluentValidation(fv =>
@@ -60,6 +69,8 @@ namespace City_Shop.ManageApp
             app.UseStaticFiles();
 
             app.UseRouting();
+
+            app.UseAuthentication();
 
             app.UseAuthorization();
 
