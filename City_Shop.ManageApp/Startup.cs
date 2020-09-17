@@ -25,6 +25,11 @@ namespace City_Shop.ManageApp
         {
             services.AddHttpClient();
 
+            // Microsoft.AspNetCore.Session
+            services.AddSession(options => {
+                options.IdleTimeout = TimeSpan.FromMinutes(30);//You can set Time   
+            });
+
             // Registers authentication services
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(options =>
@@ -73,6 +78,8 @@ namespace City_Shop.ManageApp
             app.UseAuthentication();
 
             app.UseAuthorization();
+
+            app.UseSession();
 
             app.UseEndpoints(endpoints =>
             {

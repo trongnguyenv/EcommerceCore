@@ -1,4 +1,5 @@
-﻿using City_Shop.ViewModel.System.Users;
+﻿using City_Shop.ViewModel.Common;
+using City_Shop.ViewModel.System.Users;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,5 +10,6 @@ namespace City_Shop.ManageApp.Services
     public interface IUserApiClient
     {
         Task<string> Authenticate(LoginRequest request);
+        Task<PagedResult<UserViewModel>> GetUserPaging(GetUserPagingRequest request);
     }
 }

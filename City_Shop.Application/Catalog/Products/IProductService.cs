@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace City_Shop.Application.Catalog.Products
 {
-    public interface IManageProductService
+    public interface IProductService
     {
         Task<ProductViewModel> GetById(int productId, string languageId);
 
@@ -34,5 +34,6 @@ namespace City_Shop.Application.Catalog.Products
         Task<int> UpdateImage(int imageId, ProductImageUpdateRequest productImage);
 
         Task<List<ProductImageViewModel>> GetListImages(int productId);
+        Task<PagedResult<ProductViewModel>> GetAllByCategoryId(string languageId, GetPublicProductPagingRequest request);
     }
 }

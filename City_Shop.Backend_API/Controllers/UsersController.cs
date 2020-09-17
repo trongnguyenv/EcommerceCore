@@ -1,6 +1,7 @@
 ﻿using City_Shop.Application.System;
 using City_Shop.ViewModel.System.Users;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
@@ -8,6 +9,7 @@ namespace City_Shop.Backend_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class UsersController : ControllerBase
     {
         private readonly IUserService _userService;
@@ -33,7 +35,7 @@ namespace City_Shop.Backend_API.Controllers
             return Ok(resultToken);
         }
 
-        [HttpPost("register")]
+        [HttpPost]
         [AllowAnonymous]
         public async Task<IActionResult> Register([FromBody] RegisterRequest request)
         {
@@ -47,6 +49,14 @@ namespace City_Shop.Backend_API.Controllers
             }
 
             return Ok();
+        }
+
+        // /api/users/paging?pageIndex=1&pageSize=10&keyword=
+        [HttpGet("paging")]
+        public async Task<IActionResult> GetAllPaging([FromQuery] GetUserPagingRequest request)
+        {
+            var users = await _userService.GetUserPaging(request);
+            return Ok(users);
         }
     }
 }

@@ -16,12 +16,12 @@ using System.Threading.Tasks;
 
 namespace City_Shop.Application.Catalog.Products
 {
-    public class ManageProductService : IManageProductService
+    public class ProductService : IProductService
     {
         private readonly CityShopDbContext _context;
         private readonly IStorageService _storageService;
 
-        public ManageProductService(CityShopDbContext context, IStorageService storageService)
+        public ProductService(CityShopDbContext context, IStorageService storageService)
         {
             _context = context;
             _storageService = storageService;
@@ -169,6 +169,52 @@ namespace City_Shop.Application.Catalog.Products
             {
                 TotalRecord = totalRow,
                 Items = data
+            };
+            return pagedResult;
+        }
+
+        public async Task<PagedResult<ProductViewModel>> GetAllByCategoryId(string languageId, GetPublicProductPagingRequest request)
+        {
+            // 1. SELECT JOIN
+            var query = from p in _context.Products
+                        join pt in _context.ProductTranslations on p.Id equals pt.ProductId
+                        join pic in _context.ProductInCategories on p.Id equals pic.ProductId
+                        join c in _context.Categories on pic.CategoryId equals c.Id
+                        where pt.LanguageId == languageId
+                        select new { p, pt, pic };
+
+            // 2. FILTER
+            if (request.CategoryId.Value > 0 && request.CategoryId.HasValue)
+            {
+                query = query.Where(p => p.pic.CategoryId == request.CategoryId);
+            }
+
+            // 3. PAGING
+            int totalRow = await query.CountAsync();
+            var data = await query.Skip((request.PageIndex - 1) * request.PageSize)
+                .Take(request.PageSize)
+                .Select(x => new ProductViewModel()
+                {
+                    Id = x.p.Id,
+                    Name = x.pt.Name,
+                    DateCreated = x.p.DateCreated,
+                    Description = x.pt.Description,
+                    Details = x.pt.Details,
+                    LanguageId = x.pt.LanguageId,
+                    OriginalPrice = x.p.OriginalPrice,
+                    Price = x.p.Price,
+                    SeoDescription = x.pt.SeoDescription,
+                    SeoAlias = x.pt.SeoAlias,
+                    SeoTitle = x.pt.SeoTitle,
+                    Stock = x.p.Stock,
+                    ViewCount = x.p.ViewCount
+                }).ToListAsync();
+
+            // 4.SELECT AND PROJECTION
+            var pagedResult = new PagedResult<ProductViewModel>()
+            {
+                TotalRecord = totalRow,
+                Items = data,
             };
             return pagedResult;
         }
