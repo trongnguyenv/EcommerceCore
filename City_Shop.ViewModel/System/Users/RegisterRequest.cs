@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace City_Shop.ViewModel.System
+namespace City_Shop.ViewModel.System.Users
 {
     public class RegisterRequest
     {

@@ -4,6 +4,9 @@ using City_Shop.Application.System;
 using City_Shop.Data.EF;
 using City_Shop.Data.Entities;
 using City_Shop.Uitilities.Constants;
+using City_Shop.ViewModel.System.Users;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -49,7 +52,10 @@ namespace City_Shop.Backend_API
             services.AddTransient<IPublicProductService, PublicProductService>();
             services.AddTransient<IManageProductService, ManageProductService>();
 
-            services.AddControllers();
+            // FluentValidation.AspNetCore
+            // RegisterValidationsFromAssemblyContaining
+            services.AddControllers().AddFluentValidation(fv => 
+                fv.RegisterValidatorsFromAssemblyContaining<LoginRequestValidator>());
 
             // Add Swager
             services.AddSwaggerGen(c =>
