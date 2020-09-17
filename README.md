@@ -7,3 +7,5 @@
 - Microsoft.EntityFrameworkCore.Tools
 - Microsoft.EntityFrameworkCore.Design
 - Install-Package FluentValidation.AspNetCore
+- Microsoft.VisualStudio.Web.CodeGeneration.Design
+- Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation
